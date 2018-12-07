@@ -39,12 +39,11 @@ rule learnPin_human:
 
 //One of the humans flaws could be, that he/she do not cover their pin-code
 //when entering it at the ATM
+
 rule dontCoverPin_human:
 	[!HK($h,$item,~x)]
 	--[Dontcoverpin(~x), H($trained)]->
 	[Out(~x)]
-
-
 
 
 //Connection between ATM and Host************************
