@@ -61,9 +61,12 @@ rule Atm:
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> parent of e1ad9db... Update ATMv3.spthy
 =======
 >>>>>>> parent of e1ad9db... Update ATMv3.spthy
 rule Bank:
@@ -78,12 +81,18 @@ rule Host:
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of e1ad9db... Update ATMv3.spthy
 rule Host:
 	[!Creaditcard($card,~pin), !Key(~k), In(request)]
 	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]->
 	[Out(<$card,h(sdec(senc(request,~k),~k))>)]
 
+<<<<<<< HEAD
+>>>>>>> parent of e1ad9db... Update ATMv3.spthy
+=======
 >>>>>>> parent of e1ad9db... Update ATMv3.spthy
 //Lemma's*********************************************
 //Shows if the attacker knows the pin, without it has been revealed
@@ -101,7 +110,11 @@ K(pin) @ #j
 lemma AuthOfClient:
 "
 <<<<<<< HEAD
+<<<<<<< HEAD
 ( All card pin #i. Customer(card,pin) @ #i
+=======
+( All card #i. Customer(card) @ #i
+>>>>>>> parent of e1ad9db... Update ATMv3.spthy
 =======
 ( All card #i. Customer(card) @ #i
 >>>>>>> parent of e1ad9db... Update ATMv3.spthy
