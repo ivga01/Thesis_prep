@@ -90,7 +90,7 @@ lemma AuthOfClient:
 //All card and pin that is send to the bank
 ( All card pin #i . Customer(card,pin) @ #i &
 	//(This removes the card creation, since it is not part of the communication)
-	Ex card pin #m. CreateCard(card,pin) @ m
+	(Ex card pin #m. CreateCard(card,pin) @ m)
 	//Is equal to
 	==>
 	//The card and pin from the host and
