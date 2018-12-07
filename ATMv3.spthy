@@ -5,6 +5,7 @@
  *
  *  Comments: This security protocol is used to show the understanding of how Tamarin prover is used
  *  in our master's thesis preperation project.
+ *
  */
 
 theory ATM_v3
@@ -18,10 +19,10 @@ axiom trainedHuman:
 #endif
 
 //Creates a creaditcard with a fresh pin******************
-rule create_creaditcard:
+rule create_creditcard:
 	[Fr(~pin)]
 	--[CreateCard($card, ~pin)]->
-	[!Creaditcard($card, ~pin)]
+	[!Creditcard($card, ~pin)]
 
 
 //Modeling the human**************************************
@@ -45,37 +46,35 @@ rule dontCoverPin_human:
 
 
 //Connection between ATM and Host************************
-//Sending request to see if card is valid
-
-
-rule cryptingKey:
+//Creating key for en-/decryption
+rule encryptionKey:
 	[Fr(~k)]
 	-->
 	[!Key(~k)]
 
-
+//ATM sends out an encrypted message
 rule Atm:
-	[!Key(~k), !Creaditcard($card, ~pin)]
+	[!Key(~k), !Creditcard($card, ~pin)]
 	-->
 	[ Atm($card), Out(<$card,senc(~pin,~k)>)]
 
-
-
-
-
+//Host recieve message from ATM with a request
 rule Host:
-	[!Creaditcard($card,~pin), !Key(~k), In(request)]
-	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]->
-	[Out(<$card,h(sdec(senc(request,~k),~k))>)]
+	[!Creditcard($card,~pin), !Key(~k), In(request)]
+	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]-> //Match the card and the decrypted pin
+	[Out(<$card,h(sdec(senc(request,~k),~k))>)] //Sends card and a hashed pin to the bank
 
+//Bank recieve message from host with the card and a hashed pin-code  
 rule Bank:
 	[Atm(card), In(<card,h(pin)>)]
 	--[Customer(card,pin)]->
 	[]
 
 
-//Lemma's*********************************************
-//Shows if the attacker knows the pin, without it has been revealed
+
+//Lemma*************************************************
+
+//Proves the attacker can't know the pin
 lemma knowledgeOfPin:
 " // It cannot be that
 not(Ex pin card #i #j.
@@ -85,21 +84,18 @@ K(pin) @ #j
 )
 "
 
-
-
+//Proves that the it is the right card and pin the bank receives
 lemma AuthOfClient:
-"
-( All card pin #i. Customer(card,pin) @ #i
+" 
+//All card and pin that is send to the bank
+( All card pin #i . Customer(card,pin) @ #i &
+	//(This removes the card creation, since it is not part of the communication)
+	not(Ex card pin #m. CreateCard(card,pin) @ m)
+	//Is equal to
 	==>
-(	(Ex pin #j. ConfirmIdentity(card,pin) @ #j) ) |
-	(Ex pin #k. CreateCard(card,pin) @ #k)
+	//The card and pin from the host and
+(Ex pin #j. ConfirmIdentity(card,pin) @ #j)
 )
 "
-
-
-
-
-
-
 
 end
