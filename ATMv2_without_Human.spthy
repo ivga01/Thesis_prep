@@ -14,25 +14,29 @@ begin
 builtins: symmetric-encryption, hashing
 
 //Creates a creaditcard with a fresh pin******************
-rule create_creaditcard:
+rule create_creditcard:
 	[Fr(~pin)]
 	--[CreateCard($card, ~pin)]->
-	[!Creaditcard($card, ~pin)]
-
+	[!Creditcard($card, ~pin)]
 
 //Connection between ATM and Host************************
-
 //Creating key for en-/decryption
-rule cryptingKey:
+rule encryptionKey:
 	[Fr(~k)]
 	-->
 	[!Key(~k)]
 
 //ATM sends out an encrypted message
 rule Atm:
-	[Fr(~k), !Creaditcard($card, ~pin)]
+	[!Key(~k), !Creditcard($card, ~pin)]
 	-->
 	[ Atm($card), Out(<$card,senc(~pin,~k)>)]
+
+//Host recieve message from ATM with a request
+rule Host:
+	[!Creditcard($card,~pin), !Key(~k), In(request)]
+	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]-> //Match the card and the decrypted pin
+	[Out(<$card,h(sdec(senc(request,~k),~k))>)] //Sends card and a hashed pin to the bank
 
 //Bank recieve message from host with the card and a hashed pin-code  
 rule Bank:
@@ -40,11 +44,7 @@ rule Bank:
 	--[Customer(card,pin)]->
 	[]
 
-//Host recieve message from ATM with a request
-rule Host:
-	[!Creaditcard($card,~pin), !Key(~k), In(request)]
-	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]-> //Match the card and the decrypted pin
-	[Out(<$card,h(sdec(senc(request,~k),~k))>)] //Sends card and a hashed pin to the bank
+
 
 //Lemma*************************************************
 
@@ -58,7 +58,7 @@ K(pin) @ #j
 )
 "
 
-//Proves that the it is the right card and pin the bank receives, and attacker dosen't know pin
+//Proves that the it is the right card and pin the bank receives
 lemma AuthOfClient:
 " 
 //All card and pin that is send to the bank
@@ -68,9 +68,7 @@ lemma AuthOfClient:
 	//Is equal to
 	==>
 	//The card and pin from the host and
-((Ex pin #j. ConfirmIdentity(card,pin) @ #j)) & 
-//The attacker can't know the pin in the process
-not(Ex pin #l. K(pin) @l)
+(Ex pin #j. ConfirmIdentity(card,pin) @ #j)
 )
 "
 
