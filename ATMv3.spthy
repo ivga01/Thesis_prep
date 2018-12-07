@@ -5,7 +5,6 @@
  *
  *  Comments: This security protocol is used to show the understanding of how Tamarin prover is used
  *  in our master's thesis preperation project.
- *
  */
 
 theory ATM_v3
