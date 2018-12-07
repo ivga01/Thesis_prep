@@ -1,0 +1,77 @@
+/*
+ *  Author: Ivan Garbacz, Kasper Møller Nielsen
+ *  Model Name: ATM_v2_without_human.sphty
+ *  Status: DEVELOPMENTAL
+ *
+ *  Comments: This security protocol is used to show the understanding of how Tamarin prover is used
+ *  in our master's thesis preperation project.
+ * 	This version is without human interaction
+ */
+
+theory ATM_v2_without_human
+begin
+
+builtins: symmetric-encryption, hashing
+
+//Creates a creaditcard with a fresh pin******************
+rule create_creaditcard:
+	[Fr(~pin)]
+	--[CreateCard($card, ~pin)]->
+	[!Creaditcard($card, ~pin)]
+
+
+//Connection between ATM and Host************************
+
+//Creating key for en-/decryption
+rule cryptingKey:
+	[Fr(~k)]
+	-->
+	[!Key(~k)]
+
+//ATM sends out an encrypted message
+rule Atm:
+	[Fr(~k), !Creaditcard($card, ~pin)]
+	-->
+	[ Atm($card), Out(<$card,senc(~pin,~k)>)]
+
+//Bank recieve message from host with the card and a hashed pin-code  
+rule Bank:
+	[Atm(card), In(<card,h(pin)>)]
+	--[Customer(card,pin)]->
+	[]
+
+//Host recieve message from ATM with a request
+rule Host:
+	[!Creaditcard($card,~pin), !Key(~k), In(request)]
+	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]-> //Match the card and the decrypted pin
+	[Out(<$card,h(sdec(senc(request,~k),~k))>)] //Sends card and a hashed pin to the bank
+
+//Lemma*************************************************
+
+//Proves the attacker can't know the pin
+lemma knowledgeOfPin:
+" // It cannot be that
+not(Ex pin card #i #j.
+    CreateCard(card,pin)@ #i &
+// The attacker knows the pin
+K(pin) @ #j
+)
+"
+
+//Proves that the it is the right card and pin the bank receives, and attacker dosen't know pin
+lemma AuthOfClient:
+" 
+//All card and pin that is send to the bank
+( All card pin #i . Customer(card,pin) @ #i &
+	//(This removes the card creation, since it is not part of the communication)
+	not(Ex card pin #m. CreateCard(card,pin) @ m)
+	//Is equal to
+	==>
+	//The card and pin from the host and
+((Ex pin #j. ConfirmIdentity(card,pin) @ #j)) & 
+//The attacker can't know the pin in the process
+not(Ex pin #l. K(pin) @l)
+)
+"
+
+end
