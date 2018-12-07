@@ -60,13 +60,13 @@ rule Atm:
 	[ Atm($card), Out(<$card,senc(~pin,~k)>)]
 
 
-rule Host:
+rule Bank:
 	[Atm(card), In(<card,h(pin)>)]
 	--[Customer(card)]->
 	[]
 
 
-rule Bank:
+rule Host:
 	[!Creaditcard($card,~pin), !Key(~k), In(request)]
 	--[ConfirmIdentity($card, sdec(senc(request,~k),~k))]->
 	[Out(<$card,h(sdec(senc(request,~k),~k))>)]
