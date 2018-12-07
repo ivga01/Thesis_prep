@@ -88,13 +88,13 @@ K(pin) @ #j
 lemma AuthOfClient:
 " 
 //All card and pin that is send to the bank
-( All card pin #i . Customer(card,pin) @ #i
+( All card pin #i . Customer(card,pin) @ #i &
+	//(This removes the card creation, since it is not part of the communication)
+	not(Ex card pin #m. CreateCard(card,pin) @ m)
 	//Is equal to
 	==>
-	//The card and pin from the host or
-(Ex pin #j. ConfirmIdentity(card,pin) @ #j) |
-	//Credit-card is created
-(Ex card pin #k. CreateCard(card,pin) @ k)
+	//The card and pin from the host and
+(Ex pin #j. ConfirmIdentity(card,pin) @ #j)
 )
 "
 
