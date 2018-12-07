@@ -31,11 +31,14 @@ rule create_human:
 	-->
 	[!HK($h,$item,~x)]
 
+//Human learns card and matching pin-code
 rule learnPin_human:
 	[!HK($h,$item,~x), !Creditcard($card, ~pin)]
 	--[GiveKnowledge($card, ~pin)]->
 	[!HK($h,$card,~pin)]
 
+//Untrained human might not cover their pin, when entering it
+//at the ATM
 rule dontCoverPin_human:
 	[!HK($h,$item,~x)]
 	--[Dontcoverpin(~x), H($untrained)]->
