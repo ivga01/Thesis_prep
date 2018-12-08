@@ -12,6 +12,8 @@ begin
 
 builtins: symmetric-encryption, hashing
 
+//Here we identify a trained human, which pass the untrained human rules.
+//To load this you can write: tamarin-prover interactive ATMv3.spthy -D=trainedHuman
 #ifdef trainedHuman
 axiom trainedHuman:
 	"not(Ex untrained #k. H(untrained) @k)"
